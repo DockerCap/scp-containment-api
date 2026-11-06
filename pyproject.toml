@@ -1,0 +1,9 @@
+[project]
+name = "pytest-practice-api"
+version = "0.1.0"
+requires-python = ">=3.14"
+dependencies = [
+    "black>=26.10.1",
+    "fastapi[standard]>=0.162.0",
+    "sqlalchemy>=2.1.8",
+]
