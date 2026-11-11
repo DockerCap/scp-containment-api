@@ -1,4 +1,4 @@
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from app.models import Classification
 
@@ -12,6 +12,13 @@ class ObjectCreate(BaseModel):
     name: str = Field(min_length=1, max_length=30)
     description: str | None = Field(max_length=255, default=None)
     classification: Classification
+
+    @field_validator("name")
+    @classmethod
+    def reject_blank_name(cls, value: str) -> str:
+        if not value.strip():
+            raise ValueError("name cannot be blank")
+        return value
 
 
 class ObjectUpdate(BaseModel):
@@ -28,6 +35,13 @@ class ObjectUpdate(BaseModel):
     name: str | None = Field(min_length=1, max_length=30, default=None)
     description: str | None = Field(max_length=255, default=None)
     classification: Classification | None = None
+
+    @field_validator("name")
+    @classmethod
+    def reject_blank_name(cls, value: str | None) -> str | None:
+        if value is not None and not value.strip():
+            raise ValueError("name cannot be blank")
+        return value
 
 
 class ObjectGet(BaseModel):

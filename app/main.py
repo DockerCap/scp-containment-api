@@ -2,7 +2,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import Depends, FastAPI, HTTPException, Query, Response, status
 from sqlalchemy.exc import IntegrityError
-from starlette.status import HTTP_204_NO_CONTENT
+
 
 from app.database import get_db
 from app.schemas import ObjectCreate, ObjectGet, ObjectUpdate
@@ -10,6 +10,7 @@ from app.crud import read_object, update_object, read_objects
 from app.crud import create_object
 from app.crud import delete_object
 from app.database import Base, engine
+from app.auth import require_api_key
 
 
 @asynccontextmanager
@@ -18,7 +19,7 @@ async def lifespan(app: FastAPI):
     yield
 
 
-app = FastAPI(lifespan=lifespan)
+app = FastAPI(lifespan=lifespan, dependencies=[Depends(require_api_key)])
 
 
 @app.get("/health")
@@ -64,7 +65,7 @@ def get_objects(
 @app.delete(path="/objects/{id}", status_code=status.HTTP_204_NO_CONTENT)
 def remove_object(id: int, session=Depends(dependency=get_db)):
     if delete_object(session, id):
-        return Response(status_code=HTTP_204_NO_CONTENT)
+        return Response(status_code=status.HTTP_204_NO_CONTENT)
     else:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Object wasn't found"

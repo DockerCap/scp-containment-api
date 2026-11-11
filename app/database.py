@@ -1,7 +1,7 @@
 from collections.abc import Iterator
-import os
+from pathlib import Path
 
-from sqlalchemy import create_engine
+from sqlalchemy import URL, create_engine
 from sqlalchemy.orm import Session, sessionmaker, DeclarativeBase
 
 
@@ -9,7 +9,8 @@ class Base(DeclarativeBase):
     pass
 
 
-engine = create_engine(url="sqlite+pysqlite:///app.db")
+DATABASE_PATH = Path(__file__).resolve().parent.parent / "app.db"
+engine = create_engine(URL.create("sqlite+pysqlite", database=str(DATABASE_PATH)))
 
 SessionLocal = sessionmaker(engine)
 

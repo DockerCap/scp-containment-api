@@ -219,5 +219,8 @@ __marimo__/
 # Streamlit
 .streamlit/secrets.toml
 
-#sqlite db
-app.db
+# Local SQLite database and sidecar files
+/app.db
+/app.db-journal
+/app.db-wal
+/app.db-shm
