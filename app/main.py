@@ -23,7 +23,7 @@ app = FastAPI(lifespan=lifespan, dependencies=[Depends(require_api_key)])
 
 
 @app.get("/health")
-async def visited() -> dict[str, str]:
+async def health() -> dict[str, str]:
     return {"status": "OK"}
 
 
