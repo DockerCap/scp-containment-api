@@ -30,6 +30,7 @@ class ContainmentObject(Base):
     description: Mapped[str | None] = mapped_column(String(255))
     classification: Mapped[Classification] = mapped_column(
         SQLEnum(
+            Classification,
             native_enum=False,
             create_constraint=True,
             validate_strings=True,
@@ -37,4 +38,6 @@ class ContainmentObject(Base):
         )
     )
     created_at: Mapped[datetime] = mapped_column(DateTime, default=_utcnow)
-    updated_at: Mapped[datetime] = mapped_column(DateTime, default=_utcnow, onupdate=_utcnow)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime, default=_utcnow, onupdate=_utcnow
+    )

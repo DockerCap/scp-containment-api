@@ -1,9 +1,10 @@
+from fastapi import Query
 from sqlalchemy import Select
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
 
 from app.models import ContainmentObject
-from app.schemas import ObjectCreate
+from app.schemas import ObjectCreate, ObjectUpdate
 
 
 def create_object(session: Session, payload: ObjectCreate) -> ContainmentObject:
@@ -23,12 +24,14 @@ def create_object(session: Session, payload: ObjectCreate) -> ContainmentObject:
     return record
 
 
-def list_objects(session: Session) -> list[ContainmentObject]:
-    statement = Select(ContainmentObject)
+def read_objects(
+    session: Session, limit: int, offset: int
+) -> list[ContainmentObject] | list[None]:
+    statement = Select(ContainmentObject).order_by(ContainmentObject.id).limit(limit).offset(offset)
     return list[ContainmentObject](session.scalars(statement).all())
 
 
-def get_object(session: Session, item_id: int) -> ContainmentObject | None:
+def read_object(session: Session, item_id: int) -> ContainmentObject | None:
     return session.get(ContainmentObject, item_id)
 
 
@@ -46,4 +49,23 @@ def delete_object(session: Session, item_id: int) -> bool:
         session.rollback()
         raise
 
-def update_object(session: Session, payload: ContainmentObject)
+
+def update_object(
+    session: Session, item_id: int, payload: ObjectUpdate
+) -> ContainmentObject | None:
+
+    item_to_update: ContainmentObject | None = session.get(ContainmentObject, item_id)
+    if item_to_update is None:
+        return None
+    changes = payload.model_dump(exclude_unset=True)
+    if "scp_id" in changes:
+        changes["scp_id"] = f"SCP-{changes["scp_id"]}"
+    for key, value in changes.items():
+        setattr(item_to_update, key, value)
+    try:
+        session.commit()
+        session.refresh(item_to_update)
+    except Exception:
+        session.rollback()
+        raise
+    return item_to_update
